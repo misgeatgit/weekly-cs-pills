@@ -219,19 +219,9 @@ int main(int argc, char** args)
 {
 
     //Please use cat file | ./thisprogram. Untill file reading is implemented.
-    //file should contain board size followed  size*size matrix of the sudoku board
+    //file should contain number of boards and then board size followed  size*size matrix
+    // of the sudoku board for each board.
     //blank spaces should be denoted by 0.
-
-    int bsize;
-    cin >> bsize;
-    vector<int> board;
-    board.resize(bsize * bsize);
-    for (int i = 0; i < bsize; i++) {
-	for (int j = 0; j < bsize; j++) {
-	    cin >> board[i * bsize + j];
-	}
-    }
-
     auto print_board = [](const vector<int>& board, int bsize) {
         for(int i = 0; i<bsize; i++){
 		for(int j=0; j<bsize; j++){
@@ -242,14 +232,29 @@ int main(int argc, char** args)
 
     };
 
-    cout << "----------BOARD-----------------"
-	 << "\n";
-    print_board(board, bsize);
-    Solver solver(board, bsize);
-    vector<int> soln = solver.solve();
-    cout << "----------SOLUTION--------------"
-	 << "\n";
-    print_board(soln, bsize);
+    int boards;
+    cin >> boards;
+
+    for (int i = 0; i < boards; i++) {
+	int bsize;
+	cin >> bsize;
+	vector<int> board;
+	board.resize(bsize * bsize);
+	for (int i = 0; i < bsize; i++) {
+	    for (int j = 0; j < bsize; j++) {
+		cin >> board[i * bsize + j];
+	    }
+	}
+
+	cout << "----------BOARD-----------------"
+	     << "\n";
+	print_board(board, bsize);
+	Solver solver(board, bsize);
+	vector<int> soln = solver.solve();
+	cout << "----------SOLUTION--------------"
+	     << "\n";
+	print_board(soln, bsize);
+    }
 
     /*vector<int> test = { 0, 0, 4, 0, 5, 3, 0, 0, 6,
 	0, 0, 1, 4, 0, 2, 0, 0, 0,
