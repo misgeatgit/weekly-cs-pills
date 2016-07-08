@@ -176,7 +176,7 @@ bool Solver::back_track(vector<int>& board, int bsize)
 	       return true;
     };
 
-    auto thinnest = [](const candidates& cdt) {
+    auto fewest = [](const candidates& cdt) {
        int index;
        for(int i = 0; i< cdt.size(); i++){
 	       if(i == 0) index = i;
@@ -193,7 +193,7 @@ bool Solver::back_track(vector<int>& board, int bsize)
 
     auto cdt = build_candidates(board, bsize);
     //Lets start from the min candidate size.Good heuristics.
-    box_candidates bc = cdt[thinnest(cdt)];
+    box_candidates bc = cdt[fewest(cdt)];
     while (not bc.cval.empty()) {
 	val = bc.cval[0];
 	bc.cval.erase(bc.cval.begin() + 0);
