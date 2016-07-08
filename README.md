@@ -1,4 +1,3 @@
 weekly-cs-pills
 ===============
-
-Everyt CS topic that I was interested in and wrote an implementation code.
+CS topics and challenges that I was interested enough with and wrote implementation codes.
