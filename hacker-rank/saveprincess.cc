@@ -37,33 +37,25 @@ void display_path_to_princess(int n, vector <string> grid){
  // 'm' rescuer always at the center
  // 'p' princess stuck on of the four corners
  
-  std::set<string> possible_corners = {grid[0],grid[n-1]};
-  int px, py; //princess location
+  std::vector<string> possible_corners = {grid[0],grid[n-1]};
+  int px = -1, py = -1; //princess location
   
   bool top = true;
   for(const string& corner : possible_corners){
       if(corner[0] == 'p') 
-      { px = 1;
-          if(top) {
-              py = 1;
-              top = false;
-          }
-          else{
-              py = n ;
-          }
+      { 
+          px = 1;
+          py = top? 1 : n;
           break;
       } 
       else if(corner[n-1] == 'p')
-      {  px=n;
-          if(top) {
-              py = 1;
-              top = false;
-          }
-          else{
-              py = n;
-          }
+      { 
+          px=n;
+          py = top? 1 : n;
+          break;
       }
-      break;
+
+      top = false;
   }
   // my location.
   int mx = (n/2) + 1; 
@@ -77,7 +69,8 @@ void display_path_to_princess(int n, vector <string> grid){
   cout << "px,py= " << px <<","<< py << "\n"; 
   cout << "mx,my= " << mx <<","<< my << "\n";
   cout << "distance " << dist <<"\n";
-  string direction=""; return;
+  string direction=""; 
+  //return;
   if ( px - mx < 0 ){
       for(int i=0; i < dist; i++) direction += (left +"\n");
   }
