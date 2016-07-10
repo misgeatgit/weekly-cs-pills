@@ -34,7 +34,7 @@ int main() {
         const int RING_M = ROWL-ROWU+1;
         const int RING_N = CRIGHT-CLEFT+1;
         const int NORMAL_BOUND = R % (2*(RING_M+RING_N)-4);//Doing this brought huge performance. 
-        
+
         for(int i=0; i < NORMAL_BOUND ; i++){
             //Rotate upper and lower edges of the ring
             tempu = matrix [ROWU][CRIGHT-1];
