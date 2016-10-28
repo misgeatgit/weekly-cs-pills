@@ -21,9 +21,7 @@ class Utility
     end
     sum    
   end
-
 end
-
 
 class Layer
   attr_accessor :weights, :output, :sigma, :input, :learning_rate
@@ -68,9 +66,9 @@ class HiddenLayer < Layer
   #           vector of the proceding layer.
   def compute_sigma sigma, weight, output_vec
     sigma = []
-    for i in 0..@weights.size()-1 do
+    for i in 0..@weights.size()-1 
       s = output_vec[i]*(1-output_vec[i])
-      for k in 0..sigma.size()-1 do
+      for k in 0..sigma.size()-1 
         s = s + sigma[k]*weight[k][i]
       end
       sigma.push(s)
@@ -80,9 +78,9 @@ class HiddenLayer < Layer
   end
 
   def update_weights
-    for i in 0..@sigma.size()-1 do
-      for n in 0..@input.size()-1 do
-        for m in 0..@input[n].size()-1 do
+    for i in 0..@sigma.size()-1 
+      for n in 0..@input.size()-1
+        for m in 0..@input[n].size()-1
           delta = @learning_rate * @sigma[i] * @input[n][m]
           @weights[n][m] = @weights[n][m] - delta
         end
@@ -129,9 +127,9 @@ class OutputLayer < Layer
 
   def cost
     total = 0
-    for i in 0..@X.size() do
+    for i in 0..@X.size()-1
       sum = 0
-      for j in 0..@Y[i].size() do
+      for j in 0..@Y[i].size()-1
         hypothesis = Utility.sigmoid(@X[i],@output_layer.weights[j])
         sumtmp = @Y[i][j] * Math.log10(hypothesis) + ((1 - @Y[i][j]) * Math.log10(1-hypothesis))
         sum = sum + sumtmp
@@ -144,15 +142,14 @@ class OutputLayer < Layer
 end
 
 class NeuralNet
-  def initialize input , nlayer, output = []
+  def initialize input, hidden_layers, output = []
     @X = input # A two dimensiona input MxN where M is the total rows of training
     # data and N is number of features
     @Y = output # A two dimension output of form MxK where M is total rows of 
     # training data and K is the number of outputs. K=1 for binary classifier.
-    @hidden_layers  = []
-    @lambda = 0
+    @hidden_layers  = hidden_layers
     @output_layer = Layer.new(output[0].size())
-    @nlayer = nlayer
+    @lambda = 0
   end
 
 
