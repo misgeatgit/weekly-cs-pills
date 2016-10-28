@@ -26,12 +26,13 @@ end
 
 
 class Layer
+  attr_accessor :weights, :output, :sigma, :input, :learning_rate
   def initialize nunits, input = [] , learning_rate
-    @theta = [] #two dimensional array Theta
+    @weights = [] #two dimensional array Theta
     @ouput = [] 
     @sigma = []
-    @X = []     # NxM where N is the number of units and M is the input vect size
-    @nu = learning_rate
+    @input = []     # NxM where N is the number of units and M is the input vect size
+    @learning_rate = learning_rate
     init_weight( nunits, input.size() )
   end
 
@@ -41,42 +42,24 @@ class Layer
       ninput.times do
         row.push(0.1) # TODO make it more flexible.
       end
-      @theta.push(row)
+      @weights.push(row)
     end
   end
 
-  def input
-    @X
-  end
-
-  def output
-    @output
-  end
-  
-  def set_input input
-    @X = input
-  end
-
-  def weights
-    @theta
-  end
-
-  def set_weight weight
-    @theta = weight
-  end
-
   def nunits
-    @theta.size()
+    weights.size()
   end
 
   # returns a vector of outputs of applying forward propagation at this layer.
   def compute_output
-   for unit_weight in @theta
-     @output.push(Utility.sigmoid(@X,unit_weight))
-   end
-   @output
+    for unit_weight in @weights
+      @output.push(Utility.sigmoid(@input,unit_weight))
+    end
+    @output
   end
+end
 
+class HiddenLayer < Layer
   # Computes error and updates weights accordingly.
   # @param sigma - The error vector from downstream layer mx1  dimension where 
   # m is the number of units
@@ -85,7 +68,7 @@ class Layer
   #           vector of the proceding layer.
   def compute_sigma sigma, weight, output_vec
     sigma = []
-    for i in 0..@theta.size()-1 do
+    for i in 0..@weights.size()-1 do
       s = output_vec[i]*(1-output_vec[i])
       for k in 0..sigma.size()-1 do
         s = s + sigma[k]*weight[k][i]
@@ -93,16 +76,15 @@ class Layer
       sigma.push(s)
     end
     @sigma = sigma
-
     @sigma
   end
- 
+
   def update_weights
     for i in 0..@sigma.size()-1 do
-      for n in 0..@X.size()-1 do
-        for m in 0..@X[n].size()-1 do
-          delta = @nu * @sigma[i] * @X[n][m]
-          @theta[n][m] = @theta[n][m] - delta
+      for n in 0..@input.size()-1 do
+        for m in 0..@input[n].size()-1 do
+          delta = @learning_rate * @sigma[i] * @input[n][m]
+          @weights[n][m] = @weights[n][m] - delta
         end
       end
     end
@@ -110,17 +92,24 @@ class Layer
 
 end
 
+class OutputLayer < Layer
+  def compute_sigma
+    @sigma = []
+    for i in 0..@weights.size()-1
+      o = Utility.sigmoid(@input, @weights[i]) #output computed 
+      t = @output[i] # target
+      @sigma.push( ((t-o)*o*(1-o)) )
+    end
+    @sigma
+  end
 
-class NeuralNet
-  def initialize input , nlayer, output = []
-    @X = input # A two dimensiona input MxN where M is the total rows of training
-               # data and N is number of features
-    @Y = output # A two dimension output of form MxK where M is total rows of 
-                # training data and K is the number of outputs. K=1 for binary classifier.
-    @hidden_layers  = []
-    @lambda = 0
-    @output_layer = Layer.new(output[0].size())
-    @nlayer = nlayer
+  def update_weights
+    for i in 0..@weights.size()-1 do
+      for i in 0..@weights.size()-1 do
+        delta = @learning_rate * @sigma[i] * @input[n][m]
+        @weights[n][m] = @weights[n][m] - delta
+      end
+    end
   end
 
   def regularization_value
@@ -152,30 +141,20 @@ class NeuralNet
     ((-1/@X.size()) * total) + regularization_value()
   end
 
-  # Computes the dE/dnet_out vector of the output layer
-  # return a vector (T - O)*O*(1-O) in maxtrix form
-  def sigma_output input_vect
-    weights = @output_layer.weights
-    sigma = []
-    for i in 0..weights.size()-1
-      o = Utility.sigmoid(input_vec, weights[i]) #output computed 
-      t = @output_layer.output[i] # target
-      sigma.push( ((t-o)*o*(1-o)) )
-    end
-    sigma
+end
+
+class NeuralNet
+  def initialize input , nlayer, output = []
+    @X = input # A two dimensiona input MxN where M is the total rows of training
+    # data and N is number of features
+    @Y = output # A two dimension output of form MxK where M is total rows of 
+    # training data and K is the number of outputs. K=1 for binary classifier.
+    @hidden_layers  = []
+    @lambda = 0
+    @output_layer = Layer.new(output[0].size())
+    @nlayer = nlayer
   end
 
-  def update_output_weight sigma, nu
-    weights = @output_layer.weights
-    for i in 0..weights.size()-1 do
-      for i in 0..weights.size()-1 do
-        delta = nu * sigma[i] * @output_layer.input[n][m]
-          weights[n][m] = weights[n][m] - delta
-      end
-    end
-    @output_layer.set_weight(weights)
-
-  end
 
   # Main method to start the training. 
   def train
