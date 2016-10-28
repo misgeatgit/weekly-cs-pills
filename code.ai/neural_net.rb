@@ -78,7 +78,8 @@ class Layer
   end
 
   # Computes error and updates weights accordingly.
-  # @param sigma - The error vector from downstream layer mx1  dimension where m is the number of units
+  # @param sigma - The error vector from downstream layer mx1  dimension where 
+  # m is the number of units
   # @param weight - The weight vector from downstream layer 
   # @return - The computed error vector of this layer given the error
   #           vector of the proceding layer.
@@ -112,8 +113,10 @@ end
 
 class NeuralNet
   def initialize input , nlayer, output = []
-    @X = input # A two dimensiona input MxN where M is the total rows of training data and N is number of features
-    @Y = output # A two dimension output of form MxK where M is total rows of training data and K is the number of outputs. K=1 for binary classifier.
+    @X = input # A two dimensiona input MxN where M is the total rows of training
+               # data and N is number of features
+    @Y = output # A two dimension output of form MxK where M is total rows of 
+                # training data and K is the number of outputs. K=1 for binary classifier.
     @hidden_layers  = []
     @lambda = 0
     @output_layer = Layer.new(output[0].size())
