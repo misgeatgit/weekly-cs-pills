@@ -1,3 +1,3 @@
 weekly-cs-pills
 ===============
-CS topics and challenges that I was interested enough with and wrote implementation codes.
+CS topics and programming problems which caught my attention enough to write a code.
