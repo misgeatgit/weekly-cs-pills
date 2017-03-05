@@ -8,14 +8,14 @@
 #define   NI_MAXHOST 1025
 #endif
 
-int main(void)
+int main(int argc, char** args)
 {
     struct addrinfo *result;
     struct addrinfo *res;
     int error;
 
     /* resolve the domain name into a list of addresses */
-    error = getaddrinfo("www.facebook.com", "8080"/*NULL*/, NULL, &result);
+    error = getaddrinfo(args[1], args[2]/*NULL*/, NULL, &result);
     if (error != 0)
     {   
         fprintf(stderr, "error in getaddrinfo: %s\n", gai_strerror(error));
