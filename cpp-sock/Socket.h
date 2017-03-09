@@ -18,9 +18,10 @@ enum SockAddrFamily { IPV4 =  AF_INET, IPV6 = AF_INET6, UNIX_SOCK = AF_UNIX,
 enum AIProtocol { PASSIVE = AI_PASSIVE, V4MAPPED = AI_V4MAPPED, IDN = AI_IDN,
                   CANONIDN =  AI_CANONIDN };
 
-
+class Socket;
 class SocketException;
 class AddrInfo;
+
 
 using AddrInfoSeq = std::vector<AddrInfo>;
 
@@ -31,6 +32,7 @@ using AddrInfoSeq = std::vector<AddrInfo>;
 class SockAddress
 {
     private:
+        friend class Socket;
         struct sockaddr* addr; 
         socklen_t addrlen;
 
@@ -90,20 +92,38 @@ struct AddrInfo
 
 class Socket
 {
+
     public:
-        Socket(SockAddrFamily domain, SockType type, int protocol = 0); //create a new socket
+        SockType sock_type;
+        SockAddrFamily sock_domain;
+        
+        int socket_fd;
+        int accept_fd;
+
+        Socket(SockAddrFamily domain, SockType type, int protocol = 0) //create a new socket
+        {
+            socket_fd = socket(sock_domain, sock_type, 0); // XXX Not sure the meaning of third argument.
+
+            if(socket_fd < 0 )
+                throw std::runtime_error( "ERROR while creating socket \n");
+        }
+
         ~Socket();
 
-        void bind_c(SockAddress& addr); //bind to a well 
+        void bind(SockAddress& saddr) //bind to a well 
+        {
+            if (bind(socket_fd, saddr.addr, sizeof(saddr.addr)) < 0) 
+                throw std::runtime_error( "ERROR while creating socket \n");
+        }
         // known address so that client can locket the socket
-        void listen_c(); // Allows stream sockets(TCP) to accept incoming 
+        void listen(); // Allows stream sockets(TCP) to accept incoming 
         // connection from others
 
         //TCP
-        void accept_c(SockAddress& addr);  // Accepts connection
+        void accept(SockAddress& addr);  // Accepts connection
         // a connection from a peer on a listening stream and may return the 
         // address of the peer socket
-        void connect_c(void); // Estabilishes connection with another socket
+        void connect(void); // Estabilishes connection with another socket
 
         void write(void);
         void read(void);
@@ -127,9 +147,11 @@ class Socket
 };
 
 /*
-class UDPSocket : public Socket
-{
-};
+   class UDPSocket : public Socket
+   {
+   };
+
+
 */
 
 
@@ -142,7 +164,7 @@ class SocketException : std::exception
 //-------------------DNS uitlity functions--------------------------|
 
 AddrInfoSeq get_addr_info(std::string host, std::string service = "",
-                          const std::shared_ptr<AddrInfo>& hints = nullptr);
+        const std::shared_ptr<AddrInfo>& hints = nullptr);
 
 
 /**
@@ -151,7 +173,7 @@ AddrInfoSeq get_addr_info(std::string host, std::string service = "",
  *                 NI_NUMERICSERV]
  */
 std::pair<std::string,std::string> get_name_info(SockAddress& sockaddr, 
-                                                 int flags = 0);
+        int flags = 0);
 
 
 //-------------------IPV4/v6 utility functions------------------------------|
@@ -161,7 +183,7 @@ std::pair<std::string,std::string> get_name_info(SockAddress& sockaddr,
 //in presentation format or -1 on errorvoid inet_pton(SockAddrFamily ipv , 
 //                               const std::string& src, void * addrptr ); 
 void presentation_to_network(SockAddrFamily af , const std::string& src,
-                             SockAddress& addr ); 
+        SockAddress& addr ); 
 //change addrptr. its a pointer to struct in_addr or in6_addr depending on
 //iptv
 
@@ -170,7 +192,7 @@ void presentation_to_network(SockAddrFamily af , const std::string& src,
 //len is size of buffer dst_str
 //Returns pointer to dst_str on success, or NULL on error
 std::string network_to_presentation(SockAddrFamily ipv , const void * addrptr,
-                                    const std::string& dst); 
+        const std::string& dst); 
 //try to use template instead of the third argument here. i.e conditional return type
 
 
