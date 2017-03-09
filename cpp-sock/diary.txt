@@ -1,0 +1,15 @@
+
+todo
+====
+
+1- Work on TCP and UDP Sockets functions and abstraction
+     - Finish implementing the socket class
+     - Refactor it to Various types of Sockets. i.e Server,Client, UDP, TCP....
+- Fix all the error message
+- Support all flags in get_name_info and get_addr_info methods
+- Implementa ntop and pton
+- Write demo test cases
+- Clean
+- Work work till it is shiny
+
+
