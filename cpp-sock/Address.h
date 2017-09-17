@@ -13,15 +13,28 @@
 
 #include <iostream>
 
-enum SockAddrFamily { IPV4 =  AF_INET, IPV6 = AF_INET6, UNIX_SOCK = AF_UNIX, 
-    UNSPEC = AF_UNSPEC}; 
+enum SockAddrFamily { 
+    IPV4 =  AF_INET, 
+    IPV6 = AF_INET6,
+    UNIX_SOCK = AF_UNIX, 
+    UNSPEC = AF_UNSPEC
+}; 
 
 //set for addrinfo hints
-enum AIProtocol { PASSIVE = AI_PASSIVE, V4MAPPED = AI_V4MAPPED, IDN = AI_IDN,
-    CANONIDN =  AI_CANONIDN };
+enum AIProtocol {
+    PASSIVE = AI_PASSIVE,
+    V4MAPPED = AI_V4MAPPED, 
+    IDN = AI_IDN,
+    CANONIDN =  AI_CANONIDN 
+};
 
-enum SockType { TCP = SOCK_STREAM, DGRAM = SOCK_DGRAM, SEQPACKET = SOCK_SEQPACKET,
-                RAW = SOCK_RAW, RDM = SOCK_RDM}; 
+enum SockType { 
+    TCP = SOCK_STREAM, 
+    DGRAM = SOCK_DGRAM, 
+    SEQPACKET = SOCK_SEQPACKET,
+    RAW = SOCK_RAW,
+    RDM = SOCK_RDM
+}; 
 
 class AddrInfo;
 using AddrInfoSeq = std::vector<AddrInfo>;
@@ -39,22 +52,22 @@ class SockAddress
         friend class AddrInfo;
 
         SockAddress(struct sockaddr* saddr , socklen_t len);
-        
+
     public:
         ~SockAddress();
-
-        SockAddress(unsigned short port_no, 
-                unsigned long s_addr = INADDR_ANY);
+        SockAddress(unsigned short port_no, unsigned long s_addr = INADDR_ANY);
         SockAddress(unsigned short port_no, struct in6_addr in6addr = in6addr_any);
+
         std::string ip_address(void);
         unsigned int port_no(void);
+
         /**
          * 
          * @param flags could be [NI_DGRAM | NI_NAMEREOD | NI_NOFODN | NI_NUMERICHOST |
-         *                 NI_NUMERICSERV]
+         *                        NI_NUMERICSERV]
          */
-        std::pair<std::string,std::string> get_name_info(SockAddress& sockaddr, 
-                int flags = 0);
+        std::pair<std::string,std::string> get_name_info(int flags = 0);
+
         static AddrInfoSeq get_addr_info(std::string host, std::string service ="",
                 const std::shared_ptr<AddrInfo> hints =nullptr);
 };

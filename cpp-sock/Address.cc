@@ -19,6 +19,9 @@ SockAddress::SockAddress(struct sockaddr* saddr , socklen_t len)
 
 SockAddress::~SockAddress()
 {
+    if(addr){
+        free(addr);
+    }
 }
 
 SockAddress::SockAddress(unsigned short port_no, 
@@ -32,6 +35,7 @@ SockAddress::SockAddress(unsigned short port_no,
     addr = (struct sockaddr*)&addr_in;
     addrlen = sizeof(addr_in);
 }
+
 SockAddress::SockAddress(unsigned short port_no, struct in6_addr in6addr /*= in6addr_any*/)
 {
     bzero(&addr_sin6, sizeof(addr_sin6));
@@ -41,7 +45,6 @@ SockAddress::SockAddress(unsigned short port_no, struct in6_addr in6addr /*= in6
 
     addr = (struct sockaddr*)&addr_sin6;
     addrlen = sizeof(addr_sin6);
-
 }
 
 std::string SockAddress::ip_address(void)
@@ -82,13 +85,12 @@ unsigned int SockAddress::port_no(void)
  *                 NI_NUMERICSERV]
  */
 
-std::pair<std::string,std::string> SockAddress::get_name_info(SockAddress& sockaddr, 
-        int flags /*= 0*/)
+std::pair<std::string,std::string> SockAddress::get_name_info(int flags /*= 0*/)
 {
     char hostname[NI_MAXHOST], service[NI_MAXSERV]; 
 
     int rc = getnameinfo(addr, addrlen, hostname, NI_MAXHOST,
-            service, NI_MAXSERV, flags);
+                         service, NI_MAXSERV, flags);
 
     if (rc != 0){
         const char * err_msg = gai_strerror(rc);
@@ -97,13 +99,12 @@ std::pair<std::string,std::string> SockAddress::get_name_info(SockAddress& socka
     }
 
     //if (*hostname != '\0') return std::string(hostname);
-
     return std::make_pair(std::string(hostname), std::string(service)); 
 }
 
 
 
-AddrInfoSeq SockAddress::get_addr_info(std::string host, std::string service /*=""*/,
+AddrInfoSeq SockAddress::get_addr_info(std::string host, std::string port /*=""*/,
         const std::shared_ptr<AddrInfo> hints /*=nullptr*/)
 {
     AddrInfoSeq addrinfseq;
@@ -117,23 +118,25 @@ AddrInfoSeq SockAddress::get_addr_info(std::string host, std::string service /*=
         hint.ai_protocol = hints->ai_protocol ;
         hint.ai_flags = hints->ai_flags ;
 
-    } else{
-        hint.ai_family =  AF_UNSPEC;
-        hint.ai_socktype =  0;//SOCK_STREAM;
-        hint.ai_protocol =  0;
-        hint.ai_flags = AI_CANONNAME; 
+    } else {
+        hint.ai_family =  SockAddrFamily::UNSPEC; // both IPV4 and IPV6 addresses
+        hint.ai_socktype =  SockType::TCP;
+        hint.ai_flags =  AIProtocol::PASSIVE;
+        //hint.ai_protocol = AI_CANONNAME; 
     }
+    
     hint.ai_addr =  NULL;
     //hint.ai_canonname = NULL;
     hint.ai_next = NULL;
 
     struct addrinfo * result;
-    int rc = getaddrinfo(host.c_str(), (service != "" ? service.c_str() : NULL),
-            &hint, &result);
+    int rc = getaddrinfo( (host != "" ? host.c_str() : NULL), 
+                          (port != "" ? port.c_str() : NULL),
+                         &hint, &result);
 
-    if(rc != 0){
+    if(rc != 0) {
         const char * err_msg = gai_strerror(rc);
-        std::cout << __FILE__ << " " << __LINE__ << '\n';
+        std::cout << __FILE__ << " " << __LINE__ << '\n'; // TODO replace with a debugger
         throw std::runtime_error(err_msg);
     } 
 
@@ -141,18 +144,80 @@ AddrInfoSeq SockAddress::get_addr_info(std::string host, std::string service /*=
     while( rp != NULL) {    
         SockAddress addr(rp->ai_addr, rp->ai_addrlen);
         std::string str(rp->ai_canonname == NULL ? "" : const_cast<const char*>(rp->ai_canonname));
+        
         AddrInfo addrinfo(static_cast<SockAddrFamily>(rp->ai_family),
-                rp->ai_flags,
-                rp->ai_protocol,  
-                static_cast<SockType>(rp->ai_socktype),
-                str, addr);
+                          rp->ai_flags,
+                          rp->ai_protocol,  
+                          static_cast<SockType>(rp->ai_socktype),
+                          str, addr);
 
         addrinfseq.push_back(addrinfo);
+        
         rp = rp->ai_next;
     }
 
-    //freeaddrinfo(result); //TODO call this after mecopying th addr and
+    //freeaddrinfo(result); //XXX no need for thias as rp->ai_addr has been
+    //passed to a SockAddress object
     //cannonmame otherwise it creates a problem.
     return addrinfseq;
 }
+
+
+/*
+  atom_0        
+  atom_1
+  atom_2
+  atom_3
+  .
+  .                    NETWOR
+  .                    |
+  atom_n               DISK   
+                       |
+                       RAM   
+         PM--FETCHER---|
+               /|\     GPU 
+                |
+                |     
+         PARTITIONING ALGOS
+
+
+
+
+*/       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
