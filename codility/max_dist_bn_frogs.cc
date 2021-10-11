@@ -19,22 +19,18 @@ int solution(vector<int> &blocks)
     }
 
     int max_dist = maxd_r[0] + 1;
-    cout << "---" << "maxd_r[" << 0 << "] = " << maxd_r[0] << endl;
 
     for (int i = 1; i < int(blocks.size()); i++)
     {
-        cout <<"++++++++++++ i = " << i << endl;
         int J = i, K = i;
         if (maxd_r[K - 1] == -1 or blocks[K+1] >= blocks[K])
         {
             while (K + 1 < blocks.size() and blocks[K + 1] >= blocks[K])
                 K++;
             maxd_r[i] = K - i;
-            cout << "---" << "maxd_r[" << i << "] = " << maxd_r[i] << endl;
         }
         else
         {
-            cout << "----" << "reused from prev maxd_r" << endl;
             K = K + maxd_r[K - 1] - 1;
         }
 
@@ -43,15 +39,11 @@ int solution(vector<int> &blocks)
             while (J - 1 > 0 and blocks[J] <= blocks[J - 1])
                 J--;
             maxd_l[i] = i - J;
-            cout << "---" << "maxd_l[" << i << "] = " << maxd_l[i] << endl;
         }
         else
         {
-            cout << "----" << "reused from prev maxd_l" << endl;
             J = J - maxd_l[J - 1] - 1;
         }
-
-        cout << "----" << "J=" << J << " K=" << K << endl;
 
         max_dist = max(K - J + 1, max_dist);
     }
