@@ -9,13 +9,11 @@ int solution(vector<int> &blocks)
     vector<int> maxd_r(blocks.size(), 0);
 
     //find max distance points to the right
-    for (int i = 1, bi=0; i < int(blocks.size()); i++)
-    {
-        if (blocks[i - 1] > blocks[i]){
-            bi = i;
+    for (int i = int(blocks.size())-2; i >= 0; i--) {
+        if (blocks[i] > blocks[i+1]){
             continue;
         }
-        maxd_r[bi]++;
+        maxd_r[i] = maxd_r[i+1] + 1;
     }
 
     //find max distance points to the left
